@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>972</width>
+    <height>692</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>四旋翼姿态控制上位机</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_3">
+    <item row="1" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Kp</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Ki</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_6">
+          <property name="text">
+           <string>Kd</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="1" rowspan="2">
+       <layout class="QVBoxLayout" name="PitchLayout">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>PITCH</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outKp"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outKi"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outKd"/>
+        </item>
+        <item>
+         <widget class="Line" name="line_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="inKp"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="inKi"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="inKd"/>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="2" rowspan="2">
+       <layout class="QVBoxLayout" name="RollLayout">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>ROLL</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outKp_2"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outKi_2"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outKd_2"/>
+        </item>
+        <item>
+         <widget class="Line" name="line_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="inKp_2"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="inKi_2"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="inKd_2"/>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="3" rowspan="2">
+       <layout class="QVBoxLayout" name="YawLayout">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>YAW</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outKp_3"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outKi_3"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="outKd_3"/>
+        </item>
+        <item>
+         <widget class="Line" name="line_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="inKp_3"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="inKi_3"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="inKd_3"/>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_9">
+        <item>
+         <widget class="QLabel" name="label_9">
+          <property name="text">
+           <string>Kp</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_10">
+          <property name="text">
+           <string>Ki</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_11">
+          <property name="text">
+           <string>Kd</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="1">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QRadioButton" name="dispPitchBtn">
+          <property name="text">
+           <string>显示Pitch</string>
+          </property>
+          <property name="autoExclusive">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="dispRollBtn">
+          <property name="text">
+           <string>显示Roll</string>
+          </property>
+          <property name="autoExclusive">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="dispYawBtn">
+          <property name="text">
+           <string>显示Yaw</string>
+          </property>
+          <property name="autoExclusive">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="2" column="0" colspan="3">
+         <widget class="QPushButton" name="saveBtn">
+          <property name="text">
+           <string>保存参数</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLineEdit" name="IPLineEdit">
+          <property name="text">
+           <string>127.0.0.1</string>
+          </property>
+          <property name="placeholderText">
+           <string>IP</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" colspan="2">
+         <widget class="QPushButton" name="refreshBtn">
+          <property name="text">
+           <string>刷新</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QRadioButton" name="connectBtn">
+          <property name="statusTip">
+           <string extracomment="connecting"/>
+          </property>
+          <property name="text">
+           <string>连接</string>
+          </property>
+          <property name="autoExclusive">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="backBtn">
+          <property name="text">
+           <string>&lt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLineEdit" name="portLineEdit">
+          <property name="text">
+           <string>4399</string>
+          </property>
+          <property name="placeholderText">
+           <string>UDP PORT</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="0" colspan="2">
+     <widget class="QChartView" name="chart"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>972</width>
+     <height>28</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QChartView</class>
+   <extends>QGraphicsView</extends>
+   <header>qchartview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
