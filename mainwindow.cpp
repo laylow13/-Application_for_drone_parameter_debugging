@@ -124,7 +124,65 @@ void MainWindow::processPendingDatagram()
 }
 void MainWindow::dataParser(QString data)
 {
-//    data;
+    QList<QString> list;
+    QList<QStringList> datapool;
+    QList<QString>::Iterator i;
+    QList<QStringList>::Iterator j;
+    QList<QString> compareTemplate={"okp1","oki1","okd1","ikp1","iki1","ikd1",
+                                    "okp2","oki2","okd2","ikp2","iki2","ikd2",
+                                   "okp3","oki3","okd3","ikp3","iki3","ikd3"};
+    QList<QLineEdit*> lineEditList={ui->outKp,ui->outKi,ui->outKd,ui->inKp,ui->inKi,ui->inKd,
+                                 ui->outKp_2,ui->outKi_2,ui->outKd_2,ui->inKp_2,ui->inKi_2,ui->inKd_2,
+                                 ui->outKp_3,ui->outKi_3,ui->outKd_3,ui->inKp_3,ui->inKi_3,ui->inKd_3};
+    QMap<QString,QLineSeries*> lineSeriesMap;
+     lineSeriesMap.insert("pitchCur",pitchCurSeries);
+     lineSeriesMap.insert("pitchDes",pitchDesSeries);
+     lineSeriesMap.insert("rollCur",rollCurSeries);
+     lineSeriesMap.insert("rollDes",rollDesSeries);
+     lineSeriesMap.insert("yawCur",yawCurSeries);
+     lineSeriesMap.insert("yawDes",yawDesSeries);
+    list=data.split(";",QString::SkipEmptyParts);
+    for(i = list.begin()+1; i != list.end(); ++i)
+    {
+        datapool.append(i->split(":"));
+    }
+    if(list.at(0)=="param")
+    {
+        for(j = datapool.begin(); j != datapool.end(); ++j)
+        {
+           lineEditList.at(compareTemplate.indexOf(j->at(0)))->setText(j->at(1));
+        }
+    }
+    else {
+        quint32 timetag=list.at(0).split(":").at(1).toLong();
+        qreal xAxisPoint=(double)timetag/1000.0;
+        for(j = datapool.begin(); j != datapool.end(); ++j)
+        {
+            if(j->at(0)=="pitchCur"){
+                pitchCurSeries->append(xAxisPoint,j->at(1).toDouble());
+            }
+            else if(j->at(0)=="pitchDes")
+            {
+                pitchDesSeries->append(xAxisPoint,j->at(1).toDouble());
+            }
+            else if(j->at(0)=="rollCur")
+            {
+                rollCurSeries->append(xAxisPoint,j->at(1).toDouble());
+            }
+            else if(j->at(0)=="rollDes")
+            {
+                rollDesSeries->append(xAxisPoint,j->at(1).toDouble());
+            }
+            else if(j->at(0)=="yawCur")
+            {
+                yawCurSeries->append(xAxisPoint,j->at(1).toDouble());
+            }
+            else if(j->at(0)=="yawDes")
+            {
+                yawDesSeries->append(xAxisPoint,j->at(1).toDouble());
+            }
+        }
+    }
 }
 
 void MainWindow::on_outKp_editingFinished()
