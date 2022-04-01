@@ -19,7 +19,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(receiver,SIGNAL(readyRead()),
     this,SLOT(processPendingDatagram()));
     chartInit();
-
 }
 
 

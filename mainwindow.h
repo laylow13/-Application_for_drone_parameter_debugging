@@ -5,6 +5,7 @@
 #include <QtNetwork>
 #include <QtCharts>
 #include <QDebug>
+#include <mychart.h>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -21,8 +22,8 @@ private slots:
     void on_connectBtn_clicked(bool checked);
 
     void on_refreshBtn_clicked();
+
     void processPendingDatagram();
-//    void on_outKp_textEdited(const QString &arg1)/*;*/
 
     void on_outKp_editingFinished();
 
@@ -83,6 +84,7 @@ private:
     quint32 count;
     bool m_bMiddleButtonPressed;
     QPoint m_oPrePos;
+    QChartView * testChart;
 
 private:
     void dataParser(QString data);

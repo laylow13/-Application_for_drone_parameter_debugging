@@ -11,10 +11,12 @@ CONFIG += c++11
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    mychart.cpp
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    mychart.h
 
 FORMS += \
     mainwindow.ui

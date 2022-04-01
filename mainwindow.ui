@@ -112,7 +112,7 @@
      </layout>
     </item>
     <item row="0" column="0" colspan="2">
-     <widget class="QChartView" name="chart"/>
+     <widget class="myChart" name="chart"/>
     </item>
     <item row="1" column="0">
      <layout class="QGridLayout" name="gridLayout">
@@ -292,9 +292,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QChartView</class>
+   <class>myChart</class>
    <extends>QGraphicsView</extends>
-   <header>qchartview.h</header>
+   <header>mychart.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
