@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QtNetwork>
 #include <QtCharts>
-
+#include <QDebug>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -79,9 +79,19 @@ private:
     QLineSeries *yawCurSeries;
     QValueAxis *axisX;
     QValueAxis *axisY;
+    bool isConnected;
+    quint32 count;
+    bool m_bMiddleButtonPressed;
+    QPoint m_oPrePos;
 
+private:
     void dataParser(QString data);
     void chartInit();
 
+//protected:
+//    virtual void mouseMoveEvent(QMouseEvent *pEvent) override;
+//    virtual void mousePressEvent(QMouseEvent *pEvent) override;
+//    virtual void mouseReleaseEvent(QMouseEvent *pEvent) override;
+//    virtual void wheelEvent(QWheelEvent *pEvent) override;
 };
 #endif // MAINWINDOW_H

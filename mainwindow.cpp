@@ -6,6 +6,10 @@ QT_CHARTS_USE_NAMESPACE
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    ,isConnected(false)
+    , m_bMiddleButtonPressed(false)
+    , m_oPrePos(0, 0)
+
 {
     this->setWindowTitle("四旋翼姿态控制上位机");
     ui->setupUi(this);
@@ -15,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(receiver,SIGNAL(readyRead()),
     this,SLOT(processPendingDatagram()));
     chartInit();
+
 }
 
 
@@ -29,56 +34,68 @@ void MainWindow::chartInit()
     chart=ui->chart->chart();
     axisX=new QValueAxis();
     axisY=new QValueAxis();
-    axisX->setRange(0,3000);
+    axisX->setRange(0,3);
     axisX->setTickCount(20);
-    axisX->setTitleText("角度");
+    axisX->setTitleText("时间");
     axisY->setRange(-90,90);
     axisY->setTickCount(10);
-    axisY->setTitleText("时间");
+    axisY->setTitleText("角度");
 
     chart->addAxis(axisX,Qt::AlignBottom);
     chart->addAxis(axisY,Qt::AlignLeft);
 
+
     QPen redPen(Qt::red);
     redPen.setWidth(2);
 
-    pitchDesSeries= new QLineSeries(this);
-    pitchDesSeries->attachAxis(axisX);
-    pitchDesSeries->attachAxis(axisY);
+    pitchDesSeries= new QLineSeries(chart);
     pitchDesSeries->setName("pitchDes");
-//    pitchDesSeries->setPen(redPen);
 
-    pitchCurSeries= new QLineSeries(this);
-    pitchCurSeries->attachAxis(axisX);
-    pitchCurSeries->attachAxis(axisY);
+    pitchCurSeries= new QLineSeries(chart);
     pitchCurSeries->setName("pitchCur");
-//    pitchCurSeries->setPen(redPen);
 
     rollCurSeries= new QLineSeries(this);
-    rollCurSeries->attachAxis(axisX);
-    rollCurSeries->attachAxis(axisY);
     rollCurSeries->setName("rollCur");
-//    rollCurSeries->setPen(redPen);
 
     rollDesSeries= new QLineSeries(this);
-    rollDesSeries->attachAxis(axisX);
-    rollDesSeries->attachAxis(axisY);
     rollDesSeries->setName("rollDes");
-//    rollDesSeries->setPen(redPen);
 
     yawCurSeries= new QLineSeries(this);
-    yawCurSeries->attachAxis(axisX);
-    yawCurSeries->attachAxis(axisY);
     yawCurSeries->setName("yawCur");
-//    yawCurSeries->setPen(redPen);
 
     yawDesSeries= new QLineSeries(this);
+    yawDesSeries->setName("yawDes");
+
+    chart->addSeries(pitchDesSeries);
+    chart->addSeries(pitchCurSeries);
+    pitchDesSeries->attachAxis(axisX);
+    pitchDesSeries->attachAxis(axisY);
+    pitchCurSeries->attachAxis(axisX);
+    pitchCurSeries->attachAxis(axisY);
+
+    chart->addSeries(rollCurSeries);
+    chart->addSeries(rollDesSeries);
+    rollCurSeries->attachAxis(axisX);
+    rollCurSeries->attachAxis(axisY);
+    rollDesSeries->attachAxis(axisX);
+    rollDesSeries->attachAxis(axisY);
+
+    chart->addSeries(yawCurSeries);
+    chart->addSeries(yawDesSeries);
+    yawCurSeries->attachAxis(axisX);
+    yawCurSeries->attachAxis(axisY);
     yawDesSeries->attachAxis(axisX);
     yawDesSeries->attachAxis(axisY);
-    yawDesSeries->setName("yawDes");
-//    yawDesSeries->setPen(redPen);
 
-//    chart.
+    pitchCurSeries->setVisible(false);
+    pitchDesSeries->setVisible(false);
+
+    rollCurSeries->setVisible(false);
+    rollDesSeries->setVisible(false);
+
+    yawCurSeries->setVisible(false);
+    yawDesSeries->setVisible(false);
+
     chart->legend();
 }
 void MainWindow::on_connectBtn_clicked(bool checked)
@@ -89,9 +106,20 @@ void MainWindow::on_connectBtn_clicked(bool checked)
     if(checked)
     {
          datagram= "connect";
+         isConnected=true;
+         pitchCurSeries->clear();
+         pitchDesSeries->clear();
+         yawCurSeries->clear();
+         yawDesSeries->clear();
+         rollCurSeries->clear();
+         rollDesSeries->clear();
+         axisX->setRange(0,3);
+         count=0;
     }
     else {
          datagram = "disconnect";
+         isConnected=false;
+
     }
     sender->writeDatagram(datagram.data(),datagram.size(),
                            QHostAddress(ip),port.toUInt());
@@ -109,77 +137,62 @@ void MainWindow::on_refreshBtn_clicked()
 }
 void MainWindow::processPendingDatagram()
 {
-    while(receiver->hasPendingDatagrams())  //拥有等待的数据报
+    while(receiver->hasPendingDatagrams())
         {
-           QByteArray datagram; //拥于存放接收的数据报
+           QByteArray datagram;
            QString data;
-           //让datagram的大小为等待处理的数据报的大小，这样才能接收到完整的数据
            datagram.resize(receiver->pendingDatagramSize());
-           //接收数据报，将其存放到datagram中
            receiver->readDatagram(datagram.data(),datagram.size());
-           //将数据报内容显示出来
            data=QString(datagram);
            dataParser(data);
         }
 }
 void MainWindow::dataParser(QString data)
 {
-    QList<QString> list;
-    QList<QStringList> datapool;
-    QList<QString>::Iterator i;
-    QList<QStringList>::Iterator j;
-    QList<QString> compareTemplate={"okp1","oki1","okd1","ikp1","iki1","ikd1",
-                                    "okp2","oki2","okd2","ikp2","iki2","ikd2",
-                                   "okp3","oki3","okd3","ikp3","iki3","ikd3"};
-    QList<QLineEdit*> lineEditList={ui->outKp,ui->outKi,ui->outKd,ui->inKp,ui->inKi,ui->inKd,
-                                 ui->outKp_2,ui->outKi_2,ui->outKd_2,ui->inKp_2,ui->inKi_2,ui->inKd_2,
-                                 ui->outKp_3,ui->outKi_3,ui->outKd_3,ui->inKp_3,ui->inKi_3,ui->inKd_3};
-    QMap<QString,QLineSeries*> lineSeriesMap;
-     lineSeriesMap.insert("pitchCur",pitchCurSeries);
-     lineSeriesMap.insert("pitchDes",pitchDesSeries);
-     lineSeriesMap.insert("rollCur",rollCurSeries);
-     lineSeriesMap.insert("rollDes",rollDesSeries);
-     lineSeriesMap.insert("yawCur",yawCurSeries);
-     lineSeriesMap.insert("yawDes",yawDesSeries);
-    list=data.split(";",QString::SkipEmptyParts);
-    for(i = list.begin()+1; i != list.end(); ++i)
-    {
-        datapool.append(i->split(":"));
-    }
-    if(list.at(0)=="param")
-    {
-        for(j = datapool.begin(); j != datapool.end(); ++j)
+    if(isConnected){
+        QList<QString> list;
+        QList<QStringList> datapool;
+        QList<QString>::Iterator i;
+        QList<QStringList>::Iterator j;
+        QList<QString> compareTemplate={"okp1","oki1","okd1","ikp1","iki1","ikd1",
+                                        "okp2","oki2","okd2","ikp2","iki2","ikd2",
+                                       "okp3","oki3","okd3","ikp3","iki3","ikd3"};
+        QList<QLineEdit*> lineEditList={ui->outKp,ui->outKi,ui->outKd,ui->inKp,ui->inKi,ui->inKd,
+                                     ui->outKp_2,ui->outKi_2,ui->outKd_2,ui->inKp_2,ui->inKi_2,ui->inKd_2,
+                                     ui->outKp_3,ui->outKi_3,ui->outKd_3,ui->inKp_3,ui->inKi_3,ui->inKd_3};
+        QMap<QString,QLineSeries*> lineSeriesMap;
+         lineSeriesMap.insert("pitchCur",pitchCurSeries);
+         lineSeriesMap.insert("pitchDes",pitchDesSeries);
+         lineSeriesMap.insert("rollCur",rollCurSeries);
+         lineSeriesMap.insert("rollDes",rollDesSeries);
+         lineSeriesMap.insert("yawCur",yawCurSeries);
+         lineSeriesMap.insert("yawDes",yawDesSeries);
+        list=data.split(";",QString::SkipEmptyParts);
+        for(i = list.begin()+1; i != list.end(); ++i)
         {
-           lineEditList.at(compareTemplate.indexOf(j->at(0)))->setText(j->at(1));
+            datapool.append(i->split(":"));
         }
-    }
-    else {
-        quint32 timetag=list.at(0).split(":").at(1).toLong();
-        qreal xAxisPoint=(double)timetag/1000.0;
-        for(j = datapool.begin(); j != datapool.end(); ++j)
+        if(list.at(0)=="param")
         {
-            if(j->at(0)=="pitchCur"){
-                pitchCurSeries->append(xAxisPoint,j->at(1).toDouble());
-            }
-            else if(j->at(0)=="pitchDes")
+            for(j = datapool.begin(); j != datapool.end(); ++j)
             {
-                pitchDesSeries->append(xAxisPoint,j->at(1).toDouble());
+               lineEditList.at(compareTemplate.indexOf(j->at(0)))->setText(j->at(1));
             }
-            else if(j->at(0)=="rollCur")
+        }
+        else {
+//            quint32 timetag=list.at(0).split(":").at(1).toLong();
+//            qreal xAxisPoint=(double)timetag/1000.0;
+            for(j = datapool.begin(); j != datapool.end(); ++j)
             {
-                rollCurSeries->append(xAxisPoint,j->at(1).toDouble());
-            }
-            else if(j->at(0)=="rollDes")
-            {
-                rollDesSeries->append(xAxisPoint,j->at(1).toDouble());
-            }
-            else if(j->at(0)=="yawCur")
-            {
-                yawCurSeries->append(xAxisPoint,j->at(1).toDouble());
-            }
-            else if(j->at(0)=="yawDes")
-            {
-                yawDesSeries->append(xAxisPoint,j->at(1).toDouble());
+                if(lineSeriesMap.contains(j->at(0)))
+                {
+                    lineSeriesMap[j->at(0)]->append(count*0.05,j->at(1).toDouble());
+                    count++;
+                    if(count>50)
+                    {
+                        chart->scroll(chart->plotArea().width()/(axisX->max()-axisX->min())*0.05,0);
+                    }
+                }
             }
         }
     }
@@ -417,14 +430,13 @@ void MainWindow::on_dispPitchBtn_clicked(bool checked)
 {
     if(checked)
     {
-        chart->addSeries(pitchCurSeries);
-        chart->addSeries(pitchDesSeries);
+        pitchCurSeries->setVisible(true);
+        pitchDesSeries->setVisible(true);
     }
     else {
-        chart->removeSeries(pitchCurSeries);
-        chart->removeSeries(pitchDesSeries);
+        pitchCurSeries->setVisible(false);
+        pitchDesSeries->setVisible(false);
     }
-
 }
 
 
@@ -432,12 +444,12 @@ void MainWindow::on_dispRollBtn_clicked(bool checked)
 {
     if(checked)
     {
-        chart->addSeries(rollCurSeries);
-        chart->addSeries(rollDesSeries);
+        rollCurSeries->setVisible(true);
+        rollDesSeries->setVisible(true);
     }
     else {
-        chart->removeSeries(rollCurSeries);
-        chart->removeSeries(rollDesSeries);
+        rollCurSeries->setVisible(false);
+        rollDesSeries->setVisible(false);
     }
 }
 
@@ -446,12 +458,66 @@ void MainWindow::on_dispYawBtn_clicked(bool checked)
 {
     if(checked)
     {
-        chart->addSeries(yawCurSeries);
-        chart->addSeries(yawDesSeries);
+
+        yawCurSeries->setVisible(true);
+        yawDesSeries->setVisible(true);
     }
-    else {
-        chart->removeSeries(yawCurSeries);
-        chart->removeSeries(yawDesSeries);
+    else {        
+        yawCurSeries->setVisible(false);
+        yawDesSeries->setVisible(false);
     }
 }
+
+//void MainWindow::mouseMoveEvent(QMouseEvent *pEvent)
+//{
+// if (m_bMiddleButtonPressed)
+// {
+// QPoint oDeltaPos = pEvent->pos() - m_oPrePos;
+// this->chart->scroll(-oDeltaPos.x(), oDeltaPos.y());
+// m_oPrePos = pEvent->pos();
+// }
+// __super::mouseMoveEvent(pEvent);
+//}
+//void MainWindow::mousePressEvent(QMouseEvent *pEvent)
+//{
+// if (pEvent->button() == Qt::MiddleButton)
+// {
+// m_bMiddleButtonPressed = true;
+// m_oPrePos = pEvent->pos();
+// this->setCursor(Qt::OpenHandCursor);
+// }
+// __super::mousePressEvent(pEvent);
+//}
+//void MainWindow::mouseReleaseEvent(QMouseEvent *pEvent)
+//{
+// if (pEvent->button() == Qt::MiddleButton)
+// {
+// m_bMiddleButtonPressed = false;
+// this->setCursor(Qt::ArrowCursor);
+// }
+// __super::mouseReleaseEvent(pEvent);
+//}
+//void MainWindow::wheelEvent(QWheelEvent *pEvent)
+//{
+// qreal rVal = std::pow(0.999, pEvent->delta()); // 设置比例
+// // 1. 读取视图基本信息
+// QRectF oPlotAreaRect = this->chart->plotArea();
+// QPointF oCenterPoint = oPlotAreaRect.center();
+// // 2. 水平调整
+// oPlotAreaRect.setWidth(oPlotAreaRect.width() * rVal);
+// // 3. 竖直调整
+// oPlotAreaRect.setHeight(oPlotAreaRect.height() * rVal);
+// // 4.1 计算视点，视点不变，围绕中心缩放
+// //QPointF oNewCenterPoint(oCenterPoint);
+// // 4.2 计算视点，让鼠标点击的位置移动到窗口中心
+// //QPointF oNewCenterPoint(pEvent->pos());
+// // 4.3 计算视点，让鼠标点击的位置尽量保持不动(等比换算，存在一点误差)
+// QPointF oNewCenterPoint(2 * oCenterPoint - pEvent->pos() - (oCenterPoint - pEvent->pos()) / rVal);
+// // 5. 设置视点
+// oPlotAreaRect.moveCenter(oNewCenterPoint);
+// // 6. 提交缩放调整
+// this->chart->zoomIn(oPlotAreaRect);
+// __super::wheelEvent(pEvent);
+//}
+
 
